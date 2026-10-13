@@ -3,16 +3,22 @@
 Needs output/cdisc_pilot.json, so run 01_excel_to_json.py first.
 """
 
-from pathlib import Path
+from banner import header, section, step
 
-from simple_error_log.errors import Errors
-from usdm4 import USDM4
+# Header first, so something prints while the packages load.
+header(2, "Explore a study", "Load the USDM JSON and walk through the study")
+
+from pathlib import Path  # noqa: E402
+
+from simple_error_log.errors import Errors  # noqa: E402
+from usdm4 import USDM4  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 STUDY = ROOT / "output" / "cdisc_pilot.json"
 
 
 def main() -> int:
+    step(f"Loading {STUDY.name}")
     errors = Errors()
     wrapper = USDM4().load(str(STUDY), errors)
     if wrapper is None:
@@ -20,6 +26,7 @@ def main() -> int:
         return 1
 
     # A study has versions; the content lives in the version.
+    section("Study")
     version = wrapper.study.versions[0]
     print(f"Study:      {wrapper.study.name}")
     print(f"Title:      {version.official_title_text()}")
@@ -29,17 +36,17 @@ def main() -> int:
 
     # The version holds one or more study designs: arms, epochs, objectives, the SoA.
     for design in version.studyDesigns:
-        print(f"\nDesign: {design.name}")
-        print(f"  Arms:       {', '.join(arm.name for arm in design.arms)}")
-        print(f"  Epochs:     {', '.join(epoch.name for epoch in design.epochs)}")
-        print(f"  Encounters: {len(design.encounters)}")
-        print(f"  Activities: {len(design.activities)}")
-        print(f"  Timelines:  {', '.join(t.name for t in design.scheduleTimelines)}")
-        print("  Objectives:")
+        section(f"Design: {design.name}")
+        print(f"Arms:       {', '.join(arm.name for arm in design.arms)}")
+        print(f"Epochs:     {', '.join(epoch.name for epoch in design.epochs)}")
+        print(f"Encounters: {len(design.encounters)}")
+        print(f"Activities: {len(design.activities)}")
+        print(f"Timelines:  {', '.join(t.name for t in design.scheduleTimelines)}")
+        print("Objectives:")
         for objective in design.objectives:
-            print(f"    [{objective.level.decode}] {objective.text}")
+            print(f"  [{objective.level.decode}] {objective.text}")
             for endpoint in objective.endpoints:
-                print(f"      - [{endpoint.level.decode}] {endpoint.text}")
+                print(f"    - [{endpoint.level.decode}] {endpoint.text}")
     return 0
 
 

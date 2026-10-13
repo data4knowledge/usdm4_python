@@ -29,6 +29,8 @@ Run them from the repository root, in order. Examples 2, 3 and 6 read the JSON t
 python examples/01_excel_to_json.py
 ```
 
+`examples/banner.py` isn't an example. It prints the header and progress lines the examples share.
+
 Programs that build or import a study take 10 to 15 seconds, most of it loading the controlled terminology. Loading and validating JSON takes a second or two.
 
 ## Data
