@@ -31,7 +31,7 @@ def main() -> int:
     print(f"Study:      {wrapper.study.name}")
     print(f"Title:      {version.official_title_text()}")
     print(f"Acronym:    {version.acronym_text()}")
-    print(f"Sponsor:    {version.sponsor_name()} ({version.sponsor_identifier_text()})")
+    print(f"Sponsor:    {version.sponsor_label_name()} ({version.sponsor_identifier_text()})")
     print(f"Phase:      {version.phases()}")
 
     # The version holds one or more study designs: arms, epochs, objectives, the SoA.
