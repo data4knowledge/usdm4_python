@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## Examples
 
-Run them from the repository root, in order. Examples 2, 3 and 6 read the JSON that example 1 writes. Everything they write goes in `output/`, which git ignores.
+Run them from the repository root, in order. Examples 2, 3 and 6 read the JSON that example 1 writes. Example 7 stands alone. Everything they write goes in `output/`, which git ignores.
 
 | Program | Package | What it does |
 |---------|---------|--------------|
@@ -24,6 +24,7 @@ Run them from the repository root, in order. Examples 2, 3 and 6 read the JSON t
 | `examples/04_minimum_study.py` | usdm4 | Creates the minimum valid study and saves it as JSON. |
 | `examples/05_builder.py` | usdm4 | Uses the builder for CDISC CT, ISO 3166 and ISO 639 codes and to create a USDM object. |
 | `examples/06_json_to_excel.py` | usdm4_excel | Exports the JSON back to Excel, re-imports it and compares the two. |
+| `examples/07_assembler.py` | usdm4 | Builds a complete study from one structured input with the assembler and saves it as JSON. |
 
 ```bash
 python examples/01_excel_to_json.py
