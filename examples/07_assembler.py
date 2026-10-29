@@ -1,7 +1,7 @@
 """Assemble a complete USDM study from one structured input with the usdm4 assembler.
 
-Written for usdm4 0.29.0. Version 0.30.0 replaces the SoA input (the SOA block
-below) with a structured, column-by-column one, so that block won't load there.
+Written for usdm4 0.30.0, whose SoA input is structured column by column. The
+0.29.0 SoA input won't load here.
 """
 
 from banner import header, section, step
@@ -151,47 +151,52 @@ STUDY_DESIGN = {
     # No "cells" given, so the assembler builds the arm x epoch grid itself.
 }
 
-# The schedule of activities. One entry per SoA column in epochs, visits,
-# timepoints and windows. Activities mark the columns they happen in by index.
-# Footnotes ("a") link a condition to an activity at a visit.
-SOA = {
-    "epochs": {"items": [{"text": "Screening"}, {"text": "Treatment"}, {"text": "Treatment"}, {"text": "Treatment"}, {"text": "Follow-up"}]},
-    "visits": {"items": [{"text": "Visit 1"}, {"text": "Visit 2"}, {"text": "Visit 3"}, {"text": "Visit 4"}, {"text": "Visit 5"}]},
-    "timepoints": {
-        "items": [
-            {"text": "Day -14", "value": -14, "unit": "day"},
-            {"text": "Day 1", "value": 1, "unit": "day"},
-            {"text": "Week 4", "value": 29, "unit": "day"},
-            {"text": "Week 8", "value": 57, "unit": "day"},
-            {"text": "Week 10", "value": 71, "unit": "day"},
-        ]
-    },
-    "windows": {
-        "items": [
-            {"before": 0, "after": 0},
-            {"before": 0, "after": 0},
-            {"before": 3, "after": 3},
-            {"before": 3, "after": 3},
-            {"before": 3, "after": 3},
-        ]
-    },
-    "activities": {
-        "items": [
-            {"name": "Informed consent", "visits": [{"index": 0, "references": ["a"]}]},
-            {"name": "Eligibility", "visits": [{"index": 0}, {"index": 1}]},
+# The schedule of activities: a list of timelines, one entry per printed table.
+# Each column carries its own structured header values: epoch, visit, timing
+# and window. "text" is the header as printed and becomes the label. Activities
+# list the cells they have, by column id. A footnote marker on a cell ("a")
+# links the footnote to that activity at that visit.
+def column(id, visit, epoch, day, label, window=0):
+    return {
+        "id": id,
+        "epoch": {"text": epoch},
+        "visit": {"text": visit},
+        "timing": {"text": label, "value": day, "unit": "days"},
+        "window": {"before": window, "after": window, "unit": "days"},
+    }
+
+
+def cells(*ids, markers=None):
+    return [{"column": c, "text": "X", "markers": (markers or {}).get(c, [])} for c in ids]
+
+
+SOA = [
+    {
+        "type": "main",
+        "title": "Main schedule",
+        "columns": [
+            column("V1", "Visit 1", "Screening", -14, "Day -14"),
+            column("V2", "Visit 2", "Treatment", 1, "Day 1"),
+            column("V3", "Visit 3", "Treatment", 29, "Week 4", window=3),
+            column("V4", "Visit 4", "Treatment", 57, "Week 8", window=3),
+            column("V5", "Visit 5", "Follow-up", 71, "Week 10", window=3),
+        ],
+        "activities": [
+            {"name": "Informed consent", "cells": cells("V1", markers={"V1": ["a"]})},
+            {"name": "Eligibility", "cells": cells("V1", "V2")},
             # Named Biomedical Concepts come from the CDISC library. Anything else becomes a surrogate.
             {
                 "name": "Vital signs",
-                "visits": [{"index": i} for i in range(5)],
-                "actions": {"bcs": ["Systolic Blood Pressure", "Diastolic Blood Pressure", "Heart Rate"]},
+                "cells": cells("V1", "V2", "V3", "V4", "V5"),
+                "bcs": ["Systolic Blood Pressure", "Diastolic Blood Pressure", "Heart Rate"],
             },
-            {"name": "Body weight", "visits": [{"index": 0}, {"index": 3}], "actions": {"bcs": ["Body Weight"]}},
-            {"name": "Home BP diary", "visits": [{"index": 1}, {"index": 2}, {"index": 3}], "actions": {"bcs": ["Home BP diary review"]}},
-            {"name": "Dispense study drug", "visits": [{"index": 1}, {"index": 2}]},
-        ]
-    },
-    "conditions": {"items": [{"reference": "a", "text": "Before any study procedure is done."}]},
-}
+            {"name": "Body weight", "cells": cells("V1", "V4"), "bcs": ["Body Weight"]},
+            {"name": "Home BP diary", "cells": cells("V2", "V3", "V4"), "bcs": ["Home BP diary review"]},
+            {"name": "Dispense study drug", "cells": cells("V2", "V3")},
+        ],
+        "footnotes": [{"marker": "a", "text": "Before any study procedure is done."}],
+    }
+]
 
 # Objectives, endpoints and an estimand.
 OBJECTIVES = {

@@ -18,9 +18,9 @@ def _version(package: str) -> str:
         return "not installed"
 
 
-def header(number: int, title: str, purpose: str) -> None:
+def header(number: int, title: str, purpose: str, packages: list[str] = PACKAGES) -> None:
     """Print the example's header, then a loading line."""
-    versions = "  ·  ".join(f"{p} {_version(p)}" for p in PACKAGES)
+    versions = "  ·  ".join(f"{p} {_version(p)}" for p in packages)
     print("═" * WIDTH)
     print(f" USDM and Python  ·  Example {number:02d}  ·  {title}")
     print(f" {purpose}")

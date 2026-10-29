@@ -1,2 +1,4 @@
-usdm4==0.29.0
-usdm4_excel==0.10.0
+usdm4>=0.30.0
+usdm4_excel>=0.11.0
+# ai: Claude. ai-gemini: Gemini, used alongside Claude for the criteria. pdf: PyMuPDF.
+usdm4_protocol[ai,ai-gemini,pdf]>=0.11.0
